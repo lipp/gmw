@@ -2,11 +2,11 @@
 
 var fs = require('fs');
 var http = require('http');
-var jet = require('jet');
+var jet = require('node-jet');
 var path = require('path');
 
 var gmwPort = parseInt(process.argv[3]) || 8080;
-var webDir = process.argv[2] || '../web/';
+var webDir = process.argv[2] || './web/';
 
 var mime = {
     '.js': 'application/javascript',

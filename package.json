@@ -10,7 +10,8 @@
         "should": ">= 1.2.x"
     },
     "dependencies"  : {
-        "node-jet": "git://github.com/lipp/node-jet.git"
+        "jet": "git://github.com/lipp/node-jet.git",
+        "charm": "*"
     },
     "bin"           : {},
     "directories"   : {"bin": "./bin"},
