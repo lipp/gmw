@@ -7,6 +7,7 @@ var peer = new jet.Peer();
 var charm = require('charm')();
 charm.pipe(process.stdout);
 charm.reset();
+charm.cursor(false);
 
 var steerY = 2;
 charm.position(1,steerY);
@@ -36,5 +37,36 @@ peer.state({
         setSteer(val);
     }
 });
+
+var speedY = 4;
+charm.position(1,speedY);
+charm.write('[');
+charm.position(63,speedY);
+charm.write(']');
+
+charm.position(10,speedY);
+var x2 = 10;
+var setSpeed = function(s) {
+    charm.position(x2,speedY);
+    charm.write(' ');
+    x2 = (30 + s*30/100)+2;
+    charm.position(x2,speedY);
+    charm.write('X');
+}
+
+
+setSpeed(0);
+
+peer.state({
+    path: 'speed',
+    value: 0,
+    set: function (val) {
+        if (val > 100 || val < -100) {
+            throw "out of range";
+        }
+        setSpeed(val);
+    }
+});
+
 
 

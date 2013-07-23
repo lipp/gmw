@@ -1,8 +1,14 @@
 
 #drag {
     width: 200px;
-    height: 200px;
+    height: 400px;
     background-color: red;
+    float: right;
+}
+
+#jet-config {
+    float: left;
+    display: none;
 }
 
 @media screen and (max-width: 480px) {
