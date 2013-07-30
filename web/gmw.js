@@ -105,5 +105,11 @@ $(function() {
     // Webkit en Mozilla variant beide registreren.
     window.addEventListener("MozOrientation", handleOrientationEvent, true);
     window.addEventListener("deviceorientation", handleOrientationEvent, true);
+    var refreshImage = function() {
+        $('img').attr('src','image?' + new Date());
+//        setTimeout(refreshImage,3);
+    };
+
+    setInterval(refreshImage,1000);
     
 })
