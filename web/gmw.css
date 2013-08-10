@@ -2,7 +2,7 @@
 #drag {
     width: 200px;
     height: 400px;
-    background-color: red;
+    background-color: green;
     float: right;
 }
 
@@ -28,7 +28,13 @@
         display: none;
     }
     body {
-        background-color: blue;
+        background-color: cyan;
+    }
+    #image {
+        display: block;
+        width: 320px;
+        height: 240px;
+        border: 1px solid;
     }
 }
 

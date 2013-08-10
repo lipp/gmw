@@ -11,7 +11,9 @@
     },
     "dependencies"  : {
         "jet": "git://github.com/lipp/node-jet.git",
-        "charm": "*"
+        "charm": "*",
+	"websocket": "1.0.x",
+        "inotify": "*"
     },
     "bin"           : {},
     "directories"   : {"bin": "./bin"},

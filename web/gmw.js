@@ -70,10 +70,10 @@ $(function() {
         alert('hello!');
     });
 
-    document.body.addEventListener('touchmove', function(e) {
-        // Cancel the event
-        e.preventDefault();
-    }, false);
+    // document.body.addEventListener('touchmove', function(e) {
+    //     // Cancel the event
+    //     e.preventDefault();
+    // }, false);
 
     var initialX = null;
     var initialY = null;
@@ -105,11 +105,31 @@ $(function() {
     // Webkit en Mozilla variant beide registreren.
     window.addEventListener("MozOrientation", handleOrientationEvent, true);
     window.addEventListener("deviceorientation", handleOrientationEvent, true);
-    var refreshImage = function() {
-        $('img').attr('src','image?' + new Date());
-//        setTimeout(refreshImage,3);
-    };
 
-    setInterval(refreshImage,1000);
+    var ws = new WebSocket('ws://' + window.document.domain + ':12345');
+    var target = document.getElementById("image");
+
+    var ready = true;
+    var createObjectURL = (window.webkitURL ? webkitURL : URL).createObjectURL;
+    var revokeObjectURL = (window.webkitURL ? webkitURL : URL).revokeObjectURL;
+    ws.onmessage = function (msg) {
+        var url;
+        if (ready) {
+        ready = false;
+            try {
+                //var imageBlob = msg.data.slice(0,msg.data.size,'image/jpeg');
+                
+                url=createObjectURL(msg.data);//imageBlob);
+                $('h5').text(msg.data.size + url.sub(1,20));                
+                target.onload = function() {
+                    revokeObjectURL(url);
+                    ready = true;
+                };
+                target.src = url;
+            } catch(e) {
+                $('h5').text(JSON.stringify(e));
+            }          
+        }
+    };
     
 })

@@ -5,6 +5,10 @@ var http = require('http');
 var jet = require('node-jet');
 var path = require('path');
 var url = require('url');
+var Inotify = require('inotify').Inotify;
+var inotify = new Inotify();
+//var raspifastcamd = require('child_process').spawn('/home/pi/raspifastcamd',['-w','640','-h','480','-q','5','-o','/tmp/images/%d.jpg','-e','jpg']); 
+//var raspistill = require('child_process').spawn('raspistill',['-w','320','-h','240','-q','5','-o','/tmp/images/111.jpg','-e','jpg','-t','9999999','-tl','100','-th','0:0:0','-v']); 
 
 var gmwPort = parseInt(process.argv[3]) || 8080;
 var webDir = process.argv[2] || './web/';
@@ -22,34 +26,62 @@ daemon.listen({
     wsPort: 11123
 });
 
-var image = fs.readFileSync('/home/pi/image.jpg')
+var data;
+var peer;
 
-fs.watch('/home/pi/image.jpg',function(a,b) {
-    console.log('watch')
-    fs.readFile('/home/pi/image.jpg',function(err,result) {
-        if (result.length > 0) {
-            image = result;
+//setInterval(function() {
+
+//},50);
+
+var dir = '/run/shm/';
+
+inotify.addWatch({
+    path: dir,
+    callback: function(event) {
+        if (event.mask & Inotify.IN_CLOSE_WRITE) {
+            console.log(event.name);
+            if (peer) {
+                var data;
+                var f = fs.createReadStream(dir + event.name);
+                f.on('data',function(d) {
+                    if (data) {
+                        data = Buffer.concat([data,d]);
+                    } else {
+                        data = d;
+                    }                    
+                });
+                f.on('end',function() {
+                    if (data) {
+                        console.log('send');
+                        var bla = data;
+                        peer.sendBytes(bla);
+                    }
+  //                  raspifastcamd.kill('SIGUSR1');
+
+                   // fs.unlink(dir + event.name);
+                });
+                f.on('error',function() {
+                    //fs.unlink(dir + event.name);
+                });
+            } else {
+                //fs.unlink(dir + event.name);
+            }
         }
-    });
+    }
 });
+
+
+  //  raspifastcamd.kill('SIGUSR1');
+
+var WebsocketServer = require('websocket').server;
+
 
 var server = http.createServer(function (req, res) {
     var urlParts = url.parse(req.url);
     if (req.url === '/') {
         req.url = '/gmw.html';
     }
-    else if (urlParts.pathname === '/image') {        
-
-        req.socket.setNoDelay();
-        var i2 = image;
- //       console.log('http',i2.length);
-   //     console.log(req);
-        res.setHeader('Content-Type', 'image/jpeg');
-        res.setHeader('Content-Length',i2.length);
-        res.writeHead(200);
-        res.end(i2);
-        return;
-    }
+  
     fs.readFile(webDir + req.url, function (err, data) {
         if (err) {
             res.writeHead(404);
@@ -62,8 +94,20 @@ var server = http.createServer(function (req, res) {
     });
 });
 
+var wshttp = http.createServer();
+
+var wsServer = new WebsocketServer({
+    httpServer: wshttp
+});
+
+wsServer.on('request', function (request) {
+    peer = request.accept('', request.origin);
+    console.log('peer');
+});
+
+wshttp.listen(12345);
+
 server.on('connection', function(socket) {
-    console.log("BLA");
     socket.setNoDelay();
 });
 
